@@ -32,7 +32,7 @@ class PostGetWithRelationships(PostBaseSchema):
 
 class PostCreateWithRelationships(PostBaseSchema):
     comments: list[CommentBaseSchema] = []
-    topics: list[TopicBaseSchema] = []
+    topics: list[TopicBaseSchema] = Field(min_items=1)
 
 
 class PostUpdateWithRelationships(PostBaseSchema):
