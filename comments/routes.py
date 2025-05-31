@@ -10,7 +10,7 @@ router = APIRouter()
 @router.get("/comments",
             tags=['comments'],
             summary='Отримати усі коментарі',
-            response_model=list[schemas.CommentBaseSchema])
+            response_model=list[schemas.CommentGet])
 async def get_comments(db: AsyncSession = Depends(get_db)):
     return await crud.get_comments_list(db=db)
 
@@ -18,7 +18,7 @@ async def get_comments(db: AsyncSession = Depends(get_db)):
 @router.get("/comments/{comment_id}",
             tags=['comments'],
             summary='Отримати окремий коментар за ID',
-            response_model=schemas.CommentBaseSchema)
+            response_model=schemas.CommentGet)
 async def get_comment(comment_id: int,
                       db: AsyncSession = Depends(get_db)):
     return await crud.get_comment_by_id(db=db, comment_id=comment_id)
