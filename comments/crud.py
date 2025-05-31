@@ -1,12 +1,19 @@
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, asc, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from comments import models, schemas
 
 
-async def get_comments_list(db: AsyncSession):
-    queryset = select(models.Comment)
+async def get_comments_list(db: AsyncSession,
+                            sort_by: str = "created_at",
+                            order: str = "desc"):
+    if not hasattr(models.Comment, sort_by):
+        sort_by = "created_at"
+
+    sort_column = getattr(models.Comment, sort_by)
+    order_func = asc if order == "asc" else desc
+    queryset = select(models.Comment).order_by(order_func(sort_column))
     comment_list = await db.execute(queryset)
     return comment_list.scalars().all()
 
