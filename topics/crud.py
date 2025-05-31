@@ -1,12 +1,19 @@
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, asc, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from topics import models, schemas
 
 
-async def get_topic_list(db: AsyncSession):
-    queryset = select(models.Topic)
+async def get_topic_list(db: AsyncSession,
+                         sort_by: str = "title",
+                         order: str = "desc"):
+    if not hasattr(models.Topic, sort_by):
+        sort_by = "title"
+
+    sort_column = getattr(models.Topic, sort_by)
+    order_func = asc if order == "asc" else desc
+    queryset = select(models.Topic).order_by(order_func(sort_column))
     topic_list = await db.execute(queryset)
     return topic_list.scalars().all()
 

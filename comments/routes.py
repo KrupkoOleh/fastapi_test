@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import Page
 from fastapi_pagination.async_paginator import paginate
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,9 +13,16 @@ router = APIRouter()
             tags=['comments'],
             summary='Отримати усі коментарі',
             response_model=Page[schemas.CommentGet])
-async def get_comments(db: AsyncSession = Depends(get_db)
+async def get_comments(db: AsyncSession = Depends(get_db),
+                       sort_by: str = Query("created_at",
+                                            escription="Поле для сортування"),
+                       order: str = Query("desc",
+                                          description="Порядок сортування: "
+                                                      "asc або desc")
                        ) -> Page[schemas.CommentGet]:
-    return await paginate(await crud.get_comments_list(db=db))
+    return await paginate(await crud.get_comments_list(db=db,
+                                                       sort_by=sort_by,
+                                                       order=order))
 
 
 @router.get("/comments/{comment_id}",
@@ -32,7 +39,7 @@ async def get_comment(comment_id: int,
              summary='Створити коментар',
              response_model=schemas.CommentCreate)
 async def create_comments(comment: schemas.CommentCreate,
-                          db: AsyncSession = Depends(get_db),):
+                          db: AsyncSession = Depends(get_db), ):
     return await crud.create_comment(db=db, comment_data=comment)
 
 

@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, desc, asc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -9,11 +9,18 @@ from posts.schemas import PostDeleteWithRelationships
 from topics.models import Topic
 
 
-async def get_post_list(db: AsyncSession):
+async def get_post_list(db: AsyncSession,
+                        sort_by: str = "created_at",
+                        order: str = "desc"):
+    if not hasattr(models.Post, sort_by):
+        sort_by = "created_at"
+
+    sort_column = getattr(models.Post, sort_by)
+    order_func = asc if order == "asc" else desc
     queryset = select(models.Post).options(
         selectinload(models.Post.comments),
         selectinload(models.Post.topics)
-    )
+    ).order_by(order_func(sort_column))
     post_list = await db.execute(queryset)
     return post_list.scalars().all()
 
