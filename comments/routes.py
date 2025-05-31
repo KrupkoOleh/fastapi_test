@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends
+from fastapi_pagination import Page
+from fastapi_pagination.async_paginator import paginate
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from dependencies import get_db
@@ -10,9 +12,10 @@ router = APIRouter()
 @router.get("/comments",
             tags=['comments'],
             summary='Отримати усі коментарі',
-            response_model=list[schemas.CommentGet])
-async def get_comments(db: AsyncSession = Depends(get_db)):
-    return await crud.get_comments_list(db=db)
+            response_model=Page[schemas.CommentGet])
+async def get_comments(db: AsyncSession = Depends(get_db)
+                       ) -> Page[schemas.CommentGet]:
+    return await paginate(await crud.get_comments_list(db=db))
 
 
 @router.get("/comments/{comment_id}",

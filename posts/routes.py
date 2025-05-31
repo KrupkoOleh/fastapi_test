@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends
+from fastapi_pagination import Page
+from fastapi_pagination.async_paginator import paginate
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from dependencies import get_db
@@ -10,9 +12,10 @@ router = APIRouter()
 @router.get("/posts",
             tags=["posts"],
             summary='Отримати усі пости',
-            response_model=list[schemas.PostGetWithRelationships])
-async def get_posts(db: AsyncSession = Depends(get_db)):
-    return await crud.get_post_list(db=db)
+            response_model=Page[schemas.PostGetWithRelationships])
+async def get_posts(db: AsyncSession = Depends(get_db)
+                    ) -> Page[schemas.PostGetWithRelationships]:
+    return await paginate(await crud.get_post_list(db=db))
 
 
 @router.get("/posts/{post_id}",
@@ -27,7 +30,7 @@ async def get_post(post_id: int,
 
 @router.post("/posts",
              tags=["posts"],
-             summary='Отримати пост з коментарями та темами до нього',
+             summary='Створити пост з коментарями та темами до нього',
              response_model=schemas.PostCreateWithRelationships)
 async def create_posts(post: schemas.PostCreateWithRelationships,
                        db: AsyncSession = Depends(get_db),):

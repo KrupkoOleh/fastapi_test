@@ -4,7 +4,10 @@ from topics import routes as topic_router
 from comments import routes as comment_router
 from posts import routes as post_router
 
+from fastapi_pagination import add_pagination
+
 app = FastAPI()
+add_pagination(app)
 
 app.include_router(topic_router.router)
 app.include_router(comment_router.router)
