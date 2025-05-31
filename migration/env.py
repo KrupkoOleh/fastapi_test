@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncConnection
 
 from topics.models import *
 from comments.models import *
+from posts.models import *
 
 from database import Base
 

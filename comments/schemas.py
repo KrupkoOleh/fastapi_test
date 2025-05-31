@@ -6,6 +6,9 @@ class CommentBaseSchema(BaseModel):
     text: str
     rating: int = Field(ge=0, le=5)
 
+    class Config:
+        from_attributes = True
+
 
 class CommentCreate(CommentBaseSchema):
     pass
