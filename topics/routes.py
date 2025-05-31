@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends
+from fastapi_pagination import Page
+from fastapi_pagination.async_paginator import paginate
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from dependencies import get_db
@@ -10,9 +12,10 @@ router = APIRouter()
 @router.get("/topics",
             tags=["topics"],
             summary='Отримати усі теми',
-            response_model=list[schemas.TopicBaseSchema])
-async def get_topics(db: AsyncSession = Depends(get_db)):
-    return await crud.get_topic_list(db=db)
+            response_model=Page[schemas.TopicBaseSchema])
+async def get_topics(db: AsyncSession = Depends(get_db)
+                     ) -> Page[schemas.TopicBaseSchema]:
+    return await paginate(await crud.get_topic_list(db=db))
 
 
 @router.get("/topics/{topic_id}",
