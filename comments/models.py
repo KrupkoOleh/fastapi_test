@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
 
 from database import Base
 
@@ -10,3 +11,6 @@ class Comment(Base):
     author = Column(String(100), nullable=False)
     text = Column(String(511), nullable=True)
     rating = Column(Integer, nullable=False)
+    post_id = Column(Integer, ForeignKey("post.id", ondelete="CASCADE"))
+
+    post = relationship("Post", back_populates="comments")
