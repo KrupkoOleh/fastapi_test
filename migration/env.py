@@ -6,7 +6,12 @@ from sqlalchemy import pool
 from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncConnection
 
+from topics.models import *
+from comments.models import *
+from posts.models import *
+
 from database import Base
+
 
 target_metadata = Base.metadata
 
