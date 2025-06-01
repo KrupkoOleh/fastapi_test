@@ -45,7 +45,7 @@ async def update_comment(db: AsyncSession,
     comment = await db.get(models.Comment, comment_id)
 
     if comment is None:
-        return None
+        raise HTTPException(status_code=404, detail="Comment not found")
 
     comment.author = comment_data.author
     comment.text = comment_data.text

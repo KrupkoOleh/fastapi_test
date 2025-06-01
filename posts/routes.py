@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from fastapi_pagination import Page
 from fastapi_pagination.async_paginator import paginate
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,9 +20,12 @@ async def get_posts(db: AsyncSession = Depends(get_db),
                                        description="Порядок сортування: "
                                                    "asc або desc")
                     ) -> Page[schemas.PostGetWithRelationships]:
-    return await paginate(await crud.get_post_list(db=db,
-                                                   sort_by=sort_by,
-                                                   order=order))
+    try:
+        return await paginate(await crud.get_post_list(db=db,
+                                                       sort_by=sort_by,
+                                                       order=order))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/posts/{post_id}",
@@ -32,16 +35,23 @@ async def get_posts(db: AsyncSession = Depends(get_db),
             response_model=schemas.PostGetWithRelationships)
 async def get_post(post_id: int,
                    db: AsyncSession = Depends(get_db)):
-    return await crud.get_post_by_id(db=db, post_id=post_id)
+    try:
+        return await crud.get_post_by_id(db=db, post_id=post_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/posts",
              tags=["posts"],
              summary='Створити пост з коментарями та темами до нього',
-             response_model=schemas.PostCreateWithRelationships)
+             response_model=schemas.PostCreateWithRelationships,
+             status_code=201)
 async def create_posts(post: schemas.PostCreateWithRelationships,
-                       db: AsyncSession = Depends(get_db),):
-    return await crud.create_post(db=db, post_data=post)
+                       db: AsyncSession = Depends(get_db), ):
+    try:
+        return await crud.create_post(db=db, post_data=post)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.put("/posts/{post_id}",
@@ -52,9 +62,12 @@ async def create_posts(post: schemas.PostCreateWithRelationships,
 async def update_posts(post: schemas.PostUpdateWithRelationships,
                        post_id: int,
                        db: AsyncSession = Depends(get_db)):
-    return await crud.update_post(db=db,
-                                  post_id=post_id,
-                                  post_data=post)
+    try:
+        return await crud.update_post(db=db,
+                                      post_id=post_id,
+                                      post_data=post)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.delete("/posts/{post_id}",
@@ -63,4 +76,7 @@ async def update_posts(post: schemas.PostUpdateWithRelationships,
                        'коментарями за ID',
                response_model=schemas.PostDeleteWithRelationships)
 async def delete_comments(post_id: int, db: AsyncSession = Depends(get_db)):
-    return await crud.delete_post(post_id=post_id, db=db)
+    try:
+        return await crud.delete_post(post_id=post_id, db=db)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

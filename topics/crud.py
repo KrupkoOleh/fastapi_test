@@ -42,7 +42,7 @@ async def update_topic(db: AsyncSession,
     topic = await db.get(models.Topic, topic_id)
 
     if topic is None:
-        return None
+        raise HTTPException(status_code=404, detail="Topic not found")
 
     topic.title = topic_data.title
 
