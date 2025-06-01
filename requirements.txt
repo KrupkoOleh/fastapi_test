@@ -5,3 +5,4 @@ pydantic==2.11.5
 sqlalchemy==2.0.41
 alembic==1.16.1
 asyncpg==0.30.0
+fastapi-pagination==0.13.1

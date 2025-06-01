@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import Field, BaseModel
 
 from comments.schemas import CommentBaseSchema
@@ -28,6 +30,8 @@ class PostDelete(PostBaseSchema):
 class PostGetWithRelationships(PostBaseSchema):
     comments: list[CommentBaseSchema] = []
     topics: list[TopicBaseSchema] = []
+    created_at: datetime
+    updated_at: datetime
 
 
 class PostCreateWithRelationships(PostBaseSchema):

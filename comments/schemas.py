@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -8,6 +10,11 @@ class CommentBaseSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class CommentGet(CommentBaseSchema):
+    created_at: datetime
+    updated_at: datetime
 
 
 class CommentCreate(CommentBaseSchema):
