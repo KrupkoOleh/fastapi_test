@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from fastapi_pagination import Page
 from fastapi_pagination.async_paginator import paginate
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,9 +20,12 @@ async def get_topics(db: AsyncSession = Depends(get_db),
                                         description="Порядок сортування: "
                                                     "asc або desc")
                      ) -> Page[schemas.TopicBaseSchema]:
-    return await paginate(await crud.get_topic_list(db=db,
-                                                    sort_by=sort_by,
-                                                    order=order))
+    try:
+        return await paginate(await crud.get_topic_list(db=db,
+                                                        sort_by=sort_by,
+                                                        order=order))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/topics/{topic_id}",
@@ -31,7 +34,10 @@ async def get_topics(db: AsyncSession = Depends(get_db),
             response_model=schemas.TopicBaseSchema)
 async def get_topic(topic_id: int,
                     db: AsyncSession = Depends(get_db)):
-    return await crud.get_topic_by_id(db=db, topic_id=topic_id)
+    try:
+        return await crud.get_topic_by_id(db=db, topic_id=topic_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/topics",
@@ -40,7 +46,10 @@ async def get_topic(topic_id: int,
              response_model=schemas.TopicCreate)
 async def create_topic(topic: schemas.TopicCreate,
                        db: AsyncSession = Depends(get_db), ):
-    return await crud.create_topic(db=db, topic_data=topic)
+    try:
+        return await crud.create_topic(db=db, topic_data=topic)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.put("/topics/{topic_id}",
@@ -50,7 +59,12 @@ async def create_topic(topic: schemas.TopicCreate,
 async def update_topic(topic: schemas.TopicUpdate,
                        topic_id: int,
                        db: AsyncSession = Depends(get_db)):
-    return await crud.update_topic(db=db, topic_id=topic_id, topic_data=topic)
+    try:
+        return await crud.update_topic(db=db,
+                                       topic_id=topic_id,
+                                       topic_data=topic)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.delete("/topics/{topic_id}",
@@ -58,4 +72,7 @@ async def update_topic(topic: schemas.TopicUpdate,
                summary='Видалити тему за ID',
                response_model=schemas.TopicDelete)
 async def delete_topic(topic_id: int, db: AsyncSession = Depends(get_db)):
-    return await crud.delete_topic(topic_id=topic_id, db=db)
+    try:
+        return await crud.delete_topic(topic_id=topic_id, db=db)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

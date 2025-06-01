@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from fastapi_pagination import Page
 from fastapi_pagination.async_paginator import paginate
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,9 +20,12 @@ async def get_comments(db: AsyncSession = Depends(get_db),
                                           description="Порядок сортування: "
                                                       "asc або desc")
                        ) -> Page[schemas.CommentGet]:
-    return await paginate(await crud.get_comments_list(db=db,
-                                                       sort_by=sort_by,
-                                                       order=order))
+    try:
+        return await paginate(await crud.get_comments_list(db=db,
+                                                           sort_by=sort_by,
+                                                           order=order))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/comments/{comment_id}",
@@ -31,7 +34,10 @@ async def get_comments(db: AsyncSession = Depends(get_db),
             response_model=schemas.CommentGet)
 async def get_comment(comment_id: int,
                       db: AsyncSession = Depends(get_db)):
-    return await crud.get_comment_by_id(db=db, comment_id=comment_id)
+    try:
+        return await crud.get_comment_by_id(db=db, comment_id=comment_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/comments",
@@ -40,7 +46,10 @@ async def get_comment(comment_id: int,
              response_model=schemas.CommentCreate)
 async def create_comments(comment: schemas.CommentCreate,
                           db: AsyncSession = Depends(get_db), ):
-    return await crud.create_comment(db=db, comment_data=comment)
+    try:
+        return await crud.create_comment(db=db, comment_data=comment)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.put("/comments/{comment_id}",
@@ -50,9 +59,12 @@ async def create_comments(comment: schemas.CommentCreate,
 async def update_comments(comment: schemas.CommentUpdate,
                           comment_id: int,
                           db: AsyncSession = Depends(get_db)):
-    return await crud.update_comment(db=db,
-                                     comment_id=comment_id,
-                                     comment_data=comment)
+    try:
+        return await crud.update_comment(db=db,
+                                         comment_id=comment_id,
+                                         comment_data=comment)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.delete("/comments/{comment_id}",
@@ -60,4 +72,7 @@ async def update_comments(comment: schemas.CommentUpdate,
                summary='Видалити коментар за ID',
                response_model=schemas.CommentDelete)
 async def delete_comments(comment_id: int, db: AsyncSession = Depends(get_db)):
-    return await crud.delete_comment(comment_id=comment_id, db=db)
+    try:
+        return await crud.delete_comment(comment_id=comment_id, db=db)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
