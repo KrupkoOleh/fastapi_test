@@ -30,10 +30,13 @@
    cp .env_example .env
    # Windows:
    Copy-Item .env_example .env
-   # Заповнити потрібні змінні
+   # Заповнити потрібні змінні у файлі .env
+   DB_HOST=
+   DB_PORT=
+   DB_USER=
+   DB_PASS=
+   DB_NAME=
 
-   
-   
 3. **Створення та активація віртуального середовища**:
    ```bash
    python -m venv venv
@@ -45,6 +48,7 @@
 4. **Встановлення залежностей**:
    ```bash
    pip install -r requirements.txt
+   pip install "fastapi[standard]"
 
 5. **Створіть та застосуйте міграції бази даних за допомогою Alembic**:
    ```bash
@@ -57,7 +61,7 @@
    
 7. **Запуск проєкту**:
    ```bash
-   uvicorn main:app --reload
+   fastapi dev main.py
 
 
 ## Стек технологій
